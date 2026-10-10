@@ -62,6 +62,7 @@ import androidx.core.graphics.TypefaceCompat
 import androidx.core.os.BundleCompat
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -131,6 +132,7 @@ import org.akanework.gramophone.logic.utils.AudioFormatDetector.SpatialFormat
 import org.akanework.gramophone.logic.utils.CalculationUtils
 import org.akanework.gramophone.logic.utils.ColorUtils
 import org.akanework.gramophone.logic.utils.Flags
+import org.akanework.gramophone.ui.CollectionDialogs
 import org.akanework.gramophone.ui.MainActivity
 import org.akanework.gramophone.ui.fragments.ArtistSubFragment
 import org.akanework.gramophone.ui.fragments.DetailDialogFragment
@@ -364,6 +366,18 @@ class FullBottomSheet
             }
         }
 
+        // long-press the song title to put the playing album into a collection
+        bottomSheetFullTitle.setOnLongClickListener {
+            val item = instance?.currentMediaItem ?: return@setOnLongClickListener false
+            CollectionDialogs.showAddAlbumOfSongDialog(activity, item)
+            true
+        }
+        ViewCompat.replaceAccessibilityAction(
+            bottomSheetFullTitle,
+            AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK,
+            context.getString(R.string.add_album_to_collection)
+        ) { v, _ -> v.performLongClick() }
+
         if (Flags.FORMAT_INFO_DIALOG) {
             bottomSheetFullQualityDetails.setOnClickListener {
                 MaterialAlertDialogBuilder(wrappedContext ?: context)
@@ -510,7 +524,6 @@ class FullBottomSheet
             instance?.seekToPrevious()
         }
         bottomSheetFullPreviousButton.setOnLongClickListener {
-            ViewCompat.performHapticFeedback(it, HapticFeedbackConstantsCompat.LONG_PRESS)
             instance?.seekBack()
             true
         }
@@ -519,7 +532,6 @@ class FullBottomSheet
             instance?.seekToNext()
         }
         bottomSheetFullNextButton.setOnLongClickListener {
-            ViewCompat.performHapticFeedback(it, HapticFeedbackConstantsCompat.LONG_PRESS)
             instance?.seekForward()
             true
         }

@@ -39,6 +39,7 @@ import org.akanework.gramophone.logic.ui.MyRecyclerView
 import org.akanework.gramophone.ui.adapters.AlbumAdapter
 import org.akanework.gramophone.ui.adapters.ArtistAdapter
 import org.akanework.gramophone.ui.adapters.BaseAdapter
+import org.akanework.gramophone.ui.adapters.CollectionAdapter
 import org.akanework.gramophone.ui.adapters.DateAdapter
 import org.akanework.gramophone.ui.adapters.DetailedFolderAdapter
 import org.akanework.gramophone.ui.adapters.GenreAdapter
@@ -125,6 +126,7 @@ class AdapterFragment : BaseFragment(null) {
             R.id.folders -> DetailedFolderAdapter(this, false, savedInstanceState)
             R.id.detailed_folders -> DetailedFolderAdapter(this, true, savedInstanceState)
             R.id.playlists -> PlaylistAdapter(this)
+            R.id.collections -> CollectionAdapter(this)
             -1, null -> throw IllegalArgumentException("unset ID value")
             else -> throw IllegalArgumentException("invalid ID value")
         }.apply {
@@ -143,6 +145,7 @@ class AdapterFragment : BaseFragment(null) {
             R.id.folders -> R.string.folders
             R.id.detailed_folders -> R.string.folders
             R.id.playlists -> R.string.category_playlists
+            R.id.collections -> R.string.category_collections
             -1, null -> throw IllegalArgumentException("unset ID value")
             else -> throw IllegalArgumentException("invalid ID value")
         }

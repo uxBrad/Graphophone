@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
@@ -39,6 +40,7 @@ import org.akanework.gramophone.logic.enableEdgeToEdgePaddingListener
 import org.akanework.gramophone.logic.ui.MyRecyclerView
 import org.akanework.gramophone.logic.utils.flows.PauseManagingSharedFlow.Companion.sharePauseableIn
 import org.akanework.gramophone.logic.utils.flows.provideReplayCacheInvalidationManager
+import org.akanework.gramophone.ui.CollectionDialogs
 import org.akanework.gramophone.ui.adapters.SongAdapter
 import org.akanework.gramophone.ui.adapters.Sorter
 import uk.akane.libphonograph.dynamicitem.Favorite
@@ -87,6 +89,22 @@ class GeneralSubFragment : BaseFragment(true) {
                 title = item.map { it?.title ?: requireContext().getString(R.string.unknown_album) }
                 itemList = item.map { it?.songList }
                 rawOrderExposed = Sorter.Type.ByAlbumTitleAscending
+                topAppBar.inflateMenu(R.menu.album_subfragment_menu)
+                topAppBar.setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.add_album_to_collection -> {
+                            mainActivity.lifecycleScope.launch {
+                                val album = mainActivity.reader.albumListFlow.first()
+                                    .find { a -> a.id == id }
+                                if (album != null)
+                                    CollectionDialogs.showAddAlbumDialog(mainActivity, album)
+                            }
+                            true
+                        }
+
+                        else -> false
+                    }
+                }
             }
 
             /*R.id.artist -> {

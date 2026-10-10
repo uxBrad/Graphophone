@@ -20,6 +20,17 @@
         android:id="@+id/add_to_playlist"
         android:title="@string/add_to_playlist" />
     <item
+        android:id="@+id/add_album_to_collection"
+        android:title="@string/add_album_to_collection" />
+    <item
+        android:id="@+id/remove_from_collection"
+        android:title="@string/remove_from_collection"
+        android:visible="false" />
+    <item
+        android:id="@+id/edit_collection"
+        android:title="@string/edit_collection"
+        android:visible="false" />
+    <item
         android:id="@+id/details"
         android:title="@string/details" />
     <item

@@ -55,6 +55,8 @@ class LibraryTreeLoader(
         return tabs.takeWhile { it != null }
             .filterNotNull()
             .filter { it != ViewPager2Adapter.Companion.Tab.FileSystem }
+            // TODO: browse collections from Android Auto / other media browsers
+            .filter { it != ViewPager2Adapter.Companion.Tab.Collections }
     }
 
     private fun getCategoryItem(id: String): MediaItem? {
@@ -235,6 +237,7 @@ class LibraryTreeLoader(
         ViewPager2Adapter.Companion.Tab.Folders -> "folders"
         ViewPager2Adapter.Companion.Tab.Playlist -> "playlists"
         ViewPager2Adapter.Companion.Tab.FileSystem -> "detailed_folders"
+        ViewPager2Adapter.Companion.Tab.Collections -> "collections"
     }
 
     fun getItem(mediaId: String): ListenableFuture<LibraryResult<MediaItem>> = scope.future(Dispatchers.Default) {

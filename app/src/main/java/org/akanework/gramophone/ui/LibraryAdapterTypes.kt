@@ -19,4 +19,6 @@ object LibraryAdapterTypes {
     const val FOLDERS_DETAILED = 15
     const val EDIT = 16
     const val CURRENT_QUEUE = 17
+    const val COLLECTION = 18
+    const val COLLECTION_ALBUMS = 19
 }

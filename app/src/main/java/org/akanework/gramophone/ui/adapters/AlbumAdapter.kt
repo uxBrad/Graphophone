@@ -27,7 +27,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
 import org.akanework.gramophone.R
+import org.akanework.gramophone.logic.collections.AlbumKey
+import org.akanework.gramophone.logic.collections.collectionsRepository
+import org.akanework.gramophone.ui.CollectionDialogs
 import org.akanework.gramophone.logic.getFile
 import org.akanework.gramophone.logic.requireMediaStoreId
 import org.akanework.gramophone.ui.MainActivity
@@ -40,7 +44,9 @@ class AlbumAdapter(
     fragment: Fragment,
     val queueTitle: Flow<String>,
     liveData: Flow<List<Album>?> = (fragment.requireActivity() as MainActivity).reader.albumListFlow,
-    isSubFragment: Int? = null
+    isSubFragment: Int? = null,
+    /** Set when showing the albums inside a collection, enables "Remove from collection". */
+    private val collectionId: Long? = null,
 ) : BaseAdapter<Album>
     (
     fragment,
@@ -76,7 +82,9 @@ class AlbumAdapter(
         popupMenu.inflate(R.menu.more_menu)
         popupMenu.menu.iterator().forEach {
             it.isVisible = it.itemId == R.id.play_next || it.itemId == R.id.add_to_queue
-                    || it.itemId == R.id.delete
+                    || it.itemId == R.id.add_album_to_collection
+                    || (collectionId != null && it.itemId == R.id.remove_from_collection)
+                    || (collectionId == null && it.itemId == R.id.delete)
         }
         popupMenu.setOnMenuItemClickListener { it1 ->
             when (it1.itemId) {
@@ -93,6 +101,17 @@ class AlbumAdapter(
                     mediaController?.addMediaItems(
                         item.songList,
                     )
+                }
+
+                R.id.add_album_to_collection -> {
+                    CollectionDialogs.showAddAlbumDialog(mainActivity, item)
+                }
+
+                R.id.remove_from_collection -> {
+                    val id = collectionId ?: return@setOnMenuItemClickListener true
+                    mainActivity.lifecycleScope.launch {
+                        context.collectionsRepository.removeAlbum(id, AlbumKey.of(item))
+                    }
                 }
 
                 R.id.delete -> {

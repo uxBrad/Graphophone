@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.akanework.gramophone.R
+import org.akanework.gramophone.ui.CollectionDialogs
 import org.akanework.gramophone.logic.getBooleanStrict
 import org.akanework.gramophone.logic.getFile
 import org.akanework.gramophone.logic.gramophoneApplication
@@ -333,6 +334,11 @@ class SongAdapter(
 
                 R.id.add_to_playlist -> {
                     mainActivity.addToPlaylistDialog(item)
+                    true
+                }
+
+                R.id.add_album_to_collection -> {
+                    CollectionDialogs.showAddAlbumOfSongDialog(mainActivity, item)
                     true
                 }
 

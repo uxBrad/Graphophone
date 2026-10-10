@@ -106,6 +106,7 @@ class ViewPager2Adapter(
             // Do not rename entries here, names are written to disk. Order is default tab order
             Songs(R.id.songs, R.string.category_songs),
             Albums(R.id.albums, R.string.category_albums),
+            Collections(R.id.collections, R.string.category_collections),
             Artists(R.id.artists, R.string.category_artists),
             Genres(R.id.genres, R.string.category_genres),
             Dates(R.id.dates, R.string.category_dates),

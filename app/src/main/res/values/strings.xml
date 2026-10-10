@@ -1305,4 +1305,30 @@ supporting local search. This string is displayed in the search bar when using G
     <string name="loading_playlists">Loading playlists...</string>
     <!-- Option to enable reordering mode for items in a list -->
     <string name="edit_mode">Enter edit mode</string>
+    <!-- Collections: user-made groups of albums like "Old School Metal" -->
+    <string name="category_collections">Collections</string>
+    <string name="unknown_collection">Unknown collection</string>
+    <plurals name="collections">
+        <item quantity="one">%d Collection</item>
+        <item quantity="other">%d Collections</item>
+    </plurals>
+    <string name="create_collection">New collection</string>
+    <string name="edit_collection">Edit collection</string>
+    <string name="delete_collection">Delete collection</string>
+    <string name="delete_collection_message">Delete the collection “%1$s”? The albums and songs stay on your device.</string>
+    <string name="collection_create_action">Create</string>
+    <string name="collection_done">Done</string>
+    <string name="collection_name">Name</string>
+    <string name="collection_description">Description</string>
+    <string name="collection_optional">Optional</string>
+    <string name="collection_name_taken">You already have a collection with this name</string>
+    <string name="add_album_to_collection">Add album to collection</string>
+    <string name="add_album_to_collection_title">Add “%1$s” to</string>
+    <string name="remove_from_collection">Remove from collection</string>
+    <string name="added_to_collection">Added “%1$s” to %2$s</string>
+    <plurals name="added_to_collections">
+        <item quantity="one">Added “%1$s” to %2$d collection</item>
+        <item quantity="other">Added “%1$s” to %2$d collections</item>
+    </plurals>
+    <string name="collection_album_not_found">Couldn\'t find this song\'s album in your library</string>
 </resources>
