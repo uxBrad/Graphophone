@@ -1313,6 +1313,11 @@ supporting local search. This string is displayed in the search bar when using G
         <item quantity="other">%d Collections</item>
     </plurals>
     <string name="create_collection">New collection</string>
+    <string name="shuffle_songs">Shuffle songs</string>
+    <string name="shuffle_albums">Shuffle albums</string>
+    <string name="set_collection_art">Set collection art</string>
+    <string name="remove_collection_art">Remove collection art</string>
+    <string name="collection_art_failed">Couldn\'t use that image</string>
     <string name="edit_collection">Edit collection</string>
     <string name="delete_collection">Delete collection</string>
     <string name="delete_collection_message">Delete the collection “%1$s”? The albums and songs stay on your device.</string>

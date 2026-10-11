@@ -42,7 +42,7 @@
         android:layout_marginVertical="@dimen/grid_card_margin_label"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/now_playing"
+        app:layout_constraintEnd_toStartOf="@id/label_end_barrier"
         app:layout_constraintStart_toStartOf="@id/cover_frame"
         app:layout_constraintTop_toBottomOf="@id/cover_frame"
         tools:ignore="RtlSymmetry">
@@ -96,5 +96,33 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/linearLayout"
         app:tint="?attr/colorOnSurface" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/more"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/rp_buttons"
+        android:contentDescription="@string/more"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:visibility="gone"
+        app:icon="@drawable/ic_more_vert_alt"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="24dp"
+        app:iconTint="?attr/colorOnSurface"
+        app:layout_constraintBottom_toBottomOf="@id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/linearLayout"
+        app:tooltipText="@string/more" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/label_end_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="now_playing,more" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

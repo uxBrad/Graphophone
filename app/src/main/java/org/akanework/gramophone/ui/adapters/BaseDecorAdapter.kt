@@ -249,20 +249,18 @@ open class BaseDecorAdapter<T : AdapterFragment.BaseInterface<*>>(
                     }
                 }
             } else if (adapter is AlbumAdapter) {
-                val list = adapter.getAlbumList()
-                val controller = adapter.getActivity().getPlayer()
-                controller?.apply {
-                    list.takeIf { it.isNotEmpty() }?.also { albums ->
-                        setMediaItemsWithTitle(
-                            albums.shuffled().flatMap { it.songList },
-                            title = context.getString(R.string.shuffled,
-                                    runBlocking { adapter.queueTitle.first() }),
-                            shuffleEnabled = false,
-                            repeatMode = REPEAT_MODE_OFF,
-                        )
-                        prepare()
-                        play()
-                    } ?: setMediaItems(listOf())
+                if (adapter.isSubFragment == R.id.collection) {
+                    // inside a collection, ask whether to mix up songs or whole albums
+                    PopupMenu(context, holder.shuffleAll).apply {
+                        menu.add(0, SHUFFLE_SONGS, 0, R.string.shuffle_songs)
+                        menu.add(0, SHUFFLE_ALBUMS, 1, R.string.shuffle_albums)
+                        setOnMenuItemClickListener {
+                            shuffleAlbumList(adapter, songsMode = it.itemId == SHUFFLE_SONGS)
+                            true
+                        }
+                    }.show()
+                } else {
+                    shuffleAlbumList(adapter, songsMode = false)
                 }
             }
         }
@@ -273,6 +271,29 @@ open class BaseDecorAdapter<T : AdapterFragment.BaseInterface<*>>(
         holder.jumpDown.visibility = if (jumpDownPos != null) View.VISIBLE else View.GONE
         holder.jumpDown.setOnClickListener {
             scrollToViewPosition(jumpDownPos!!())
+        }
+    }
+
+    /**
+     * songsMode: every song of every album in random order. Otherwise albums are put in
+     * random order and each one plays all the way through before the next starts.
+     */
+    private fun shuffleAlbumList(adapter: AlbumAdapter, songsMode: Boolean) {
+        val list = adapter.getAlbumList()
+        val controller = adapter.getActivity().getPlayer()
+        controller?.apply {
+            list.takeIf { it.isNotEmpty() }?.also { albums ->
+                setMediaItemsWithTitle(
+                    if (songsMode) albums.flatMap { it.songList }
+                    else albums.shuffled().flatMap { it.songList },
+                    title = context.getString(R.string.shuffled,
+                        runBlocking { adapter.queueTitle.first() }),
+                    shuffleEnabled = songsMode,
+                    repeatMode = if (songsMode) null else REPEAT_MODE_OFF,
+                )
+                prepare()
+                play()
+            } ?: setMediaItems(listOf())
         }
     }
 
@@ -333,6 +354,11 @@ open class BaseDecorAdapter<T : AdapterFragment.BaseInterface<*>>(
 
     override fun getItemCount(): Int = 1
     override fun getItemViewType(position: Int): Int = R.layout.general_decor
+
+    private companion object {
+        const val SHUFFLE_SONGS = 1
+        const val SHUFFLE_ALBUMS = 2
+    }
 
     class ViewHolder(
         view: View,

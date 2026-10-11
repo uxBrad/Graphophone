@@ -21,4 +21,5 @@ object LibraryAdapterTypes {
     const val CURRENT_QUEUE = 17
     const val COLLECTION = 18
     const val COLLECTION_ALBUMS = 19
+    const val COLLECTION_SONGS = 20
 }

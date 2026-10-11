@@ -63,10 +63,31 @@
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
+        <!-- same pills as the home screen -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:tabBackground="@android:color/transparent"
+            app:tabGravity="start"
+            app:tabIndicator="@drawable/selected_chip_background"
+            app:tabIndicatorColor="?colorSecondaryContainer"
+            app:tabIndicatorFullWidth="true"
+            app:tabIndicatorGravity="stretch"
+            app:tabMinWidth="0dp"
+            app:tabMode="scrollable"
+            app:tabPaddingEnd="12dp"
+            app:tabPaddingStart="12dp"
+            app:tabRippleColor="@android:color/transparent"
+            app:tabSelectedTextColor="?colorOnSecondaryContainer"
+            app:tabTextAppearance="@style/TabTextAppearance"
+            app:tabTextColor="?attr/colorOnSurfaceVariant" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include
-        layout="@layout/fragment_recyclerview"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/collection_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"

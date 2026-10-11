@@ -17,7 +17,7 @@
             android:id="@+id/collapsingtoolbar"
             style="?attr/collapsingToolbarLayoutMediumStyle"
             android:layout_width="match_parent"
-            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            android:layout_height="?attr/actionBarSize"
             app:collapsedTitleTextAppearance="?textAppearanceTitleLarge"
             app:collapsedTitleTextColor="?attr/colorOnSurface"
             app:contentScrim="@android:color/transparent"
@@ -26,7 +26,8 @@
             app:expandedTitleTextColor="?attr/colorOnSurface"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:title="@string/app_name"
-            app:titleCollapseMode="scale">
+            app:titleCollapseMode="scale"
+            app:titleEnabled="false">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/topAppBar"

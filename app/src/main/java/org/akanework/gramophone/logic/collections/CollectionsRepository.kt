@@ -43,7 +43,10 @@ import java.util.Locale
  */
 class CollectionsRepository private constructor(context: Context) {
 
-    private val file = AtomicFile(File(context.applicationContext.filesDir, FILE_NAME))
+    private val appContext = context.applicationContext
+
+    // lazy: looking up filesDir touches the disk, which must not happen on the main thread
+    private val file by lazy { AtomicFile(File(appContext.filesDir, FILE_NAME)) }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val mutex = Mutex()
     private val state = MutableStateFlow<List<CollectionData>?>(null)
@@ -99,7 +102,20 @@ class CollectionsRepository private constructor(context: Context) {
         list.map { if (it.id == id) it.copy(name = name.trim(), description = description.trim()) else it }
     }
 
-    suspend fun delete(id: Long) = edit { list -> list.filterNot { it.id == id } }
+    /** Sets (or with null, clears) the picture used as this collection's art. */
+    suspend fun setCustomCover(id: Long, path: String?) = edit { list ->
+        list.map {
+            if (it.id != id) it else {
+                if (it.customCover != null && it.customCover != path) File(it.customCover).delete()
+                it.copy(customCover = path)
+            }
+        }
+    }
+
+    suspend fun delete(id: Long) = edit { list ->
+        list.find { it.id == id }?.customCover?.let { File(it).delete() }
+        list.filterNot { it.id == id }
+    }
 
     suspend fun addAlbum(id: Long, key: AlbumKey) = edit { list ->
         list.map { if (it.id == id && !it.contains(key)) it.copy(albums = it.albums + key) else it }
@@ -186,6 +202,7 @@ class CollectionsRepository private constructor(context: Context) {
                         put("name", c.name)
                         put("description", c.description)
                         put("createdAt", c.createdAt)
+                        c.customCover?.let { put("customCover", it) }
                         put("albums", JSONArray().apply {
                             c.albums.forEach { a ->
                                 put(JSONObject().apply {
@@ -214,6 +231,7 @@ class CollectionsRepository private constructor(context: Context) {
                         AlbumKey(a.optString("title"), a.optString("artist"))
                     },
                     createdAt = c.optLong("createdAt", 0L),
+                    customCover = if (c.has("customCover")) c.getString("customCover") else null,
                 )
             }
         }

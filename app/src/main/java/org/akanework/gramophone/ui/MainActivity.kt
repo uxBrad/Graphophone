@@ -129,6 +129,31 @@ class MainActivity : BaseActivity() {
     val startingActivity =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {}
 
+    private var pendingCollectionArtId: Long? = null
+    private val pickCollectionArtLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            val id = pendingCollectionArtId
+            pendingCollectionArtId = null
+            if (uri == null || id == null) return@registerForActivityResult
+            lifecycleScope.launch {
+                val path = org.akanework.gramophone.logic.collections.CollectionArt
+                    .import(this@MainActivity, id, uri)
+                if (path == null) {
+                    Toast.makeText(this@MainActivity, R.string.collection_art_failed,
+                        Toast.LENGTH_SHORT).show()
+                } else {
+                    org.akanework.gramophone.logic.collections.CollectionsRepository
+                        .get(this@MainActivity).setCustomCover(id, path)
+                }
+            }
+        }
+
+    /** Lets the person pick a picture from anywhere to use as a collection's art. */
+    fun pickCollectionArt(collectionId: Long) {
+        pendingCollectionArtId = collectionId
+        pickCollectionArtLauncher.launch("image/*")
+    }
+
     private val handler = Handler(Looper.getMainLooper())
     private val reportFullyDrawnRunnable = Runnable { if (!ready) reportFullyDrawn() }
     private var ready = false

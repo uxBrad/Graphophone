@@ -17,6 +17,8 @@
 
 package org.akanework.gramophone.ui.adapters
 
+import org.akanework.gramophone.logic.collections.scopedTo
+import kotlinx.coroutines.flow.Flow
 import android.content.SharedPreferences
 import android.view.MenuItem
 import androidx.appcompat.widget.PopupMenu
@@ -44,14 +46,15 @@ import uk.akane.libphonograph.manipulator.ItemManipulator
 class ArtistAdapter(
     fragment: Fragment,
     private val prefs2: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(fragment.requireContext().applicationContext),
-    var isAlbumArtist: Boolean = prefs2.getBooleanStrict("isDisplayingAlbumArtist", false)
+    var isAlbumArtist: Boolean = prefs2.getBooleanStrict("isDisplayingAlbumArtist", false),
+    scopeSongIds: Flow<Set<String>>? = null,
 ) : BaseAdapter<Artist>
     (
     fragment,
     liveData = (fragment.requireActivity() as MainActivity).let {
         if (isAlbumArtist)
             it.reader.albumArtistListFlow else it.reader.artistListFlow
-    },
+    }.let { base -> if (scopeSongIds != null) base.scopedTo(scopeSongIds) else base },
     sortHelper = StoreArtistHelper,
     naturalOrderHelper = null,
     initialSortType = Sorter.Type.ByTitleAscending,

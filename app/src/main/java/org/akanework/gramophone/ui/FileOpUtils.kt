@@ -91,6 +91,10 @@ fun getAdapterType(adapter: AdapterFragment.BaseInterface<*>) =
             LibraryAdapterTypes.COLLECTION
         }
 
+        adapter is SongAdapter && adapter.isSubFragment == R.id.collection -> {
+            LibraryAdapterTypes.COLLECTION_SONGS
+        }
+
         adapter is AlbumAdapter && adapter.isSubFragment == R.id.collection -> {
             LibraryAdapterTypes.COLLECTION_ALBUMS
         }

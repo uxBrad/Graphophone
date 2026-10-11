@@ -17,6 +17,8 @@
 
 package org.akanework.gramophone.ui.adapters
 
+import org.akanework.gramophone.logic.collections.scopedTo
+import kotlinx.coroutines.flow.Flow
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import org.akanework.gramophone.R
@@ -29,10 +31,12 @@ import uk.akane.libphonograph.items.Date
  */
 class DateAdapter(
     fragment: Fragment,
+    scopeSongIds: Flow<Set<String>>? = null,
 ) : BaseAdapter<Date>
     (
     fragment,
-    liveData = (fragment.requireActivity() as MainActivity).reader.dateListFlow,
+    liveData = (fragment.requireActivity() as MainActivity).reader.dateListFlow
+        .let { base -> if (scopeSongIds != null) base.scopedTo(scopeSongIds) else base },
     sortHelper = StoreDateHelper,
     naturalOrderHelper = null,
     initialSortType = Sorter.Type.ByTitleAscending,

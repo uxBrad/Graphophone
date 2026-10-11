@@ -17,6 +17,8 @@
 
 package org.akanework.gramophone.ui.adapters
 
+import org.akanework.gramophone.logic.collections.scopedTo
+import kotlinx.coroutines.flow.Flow
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import org.akanework.gramophone.R
@@ -29,10 +31,12 @@ import uk.akane.libphonograph.items.Genre
  */
 class GenreAdapter(
     fragment: Fragment,
+    scopeSongIds: Flow<Set<String>>? = null,
 ) : BaseAdapter<Genre>
     (
     fragment,
-    liveData = (fragment.requireActivity() as MainActivity).reader.genreListFlow,
+    liveData = (fragment.requireActivity() as MainActivity).reader.genreListFlow
+        .let { base -> if (scopeSongIds != null) base.scopedTo(scopeSongIds) else base },
     sortHelper = StoreGenreHelper,
     naturalOrderHelper = null,
     initialSortType = Sorter.Type.ByTitleAscending,

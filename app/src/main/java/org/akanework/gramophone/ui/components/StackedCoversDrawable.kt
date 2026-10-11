@@ -36,21 +36,31 @@ import coil3.request.Disposable
 import coil3.request.ImageRequest
 import coil3.request.target
 import com.google.android.material.color.MaterialColors
+import kotlin.math.abs
 import kotlin.math.min
 
 /**
- * Draws up to three album covers as a stack, front cover at the bottom and the others peeking
- * out above it, smaller and slightly shaded. Used as the thumbnail for collections.
- * Missing covers (fewer than three albums, or albums without art) use [placeholderRes].
+ * Thumbnail for a collection. Shows the first album big in the middle with more albums fanned
+ * out behind it on both sides: five albums when the collection has at least five, otherwise
+ * three. With [single] set it draws one picture filling the whole thumbnail instead, used when
+ * the person picked their own collection art.
  */
 class StackedCoversDrawable(
     context: Context,
     covers: List<Uri?>,
     @DrawableRes placeholderRes: Int,
+    private val single: Boolean = false,
 ) : Drawable() {
 
+    // horizontal position of each cover, 0 is the big middle one. Cover i goes in slot i.
+    private val offsets: IntArray = when {
+        single -> intArrayOf(0)
+        covers.size >= 5 -> intArrayOf(0, -1, 1, -2, 2)
+        else -> intArrayOf(0, -1, 1)
+    }
+    private val used = if (single) 1 else min(offsets.size, maxOf(covers.size, 1))
     private val placeholder = AppCompatResources.getDrawable(context, placeholderRes)!!.mutate()
-    private val layers = arrayOfNulls<Drawable>(LAYERS)
+    private val layers = arrayOfNulls<Drawable>(offsets.size)
     private val requests = mutableListOf<Disposable>()
     private val rect = RectF()
     private val layerBounds = Rect()
@@ -68,7 +78,7 @@ class StackedCoversDrawable(
 
     init {
         val loader = context.imageLoader
-        covers.take(LAYERS).forEachIndexed { i, uri ->
+        covers.take(used).forEachIndexed { i, uri ->
             if (uri == null) return@forEachIndexed
             requests += loader.enqueue(
                 ImageRequest.Builder(context)
@@ -94,13 +104,26 @@ class StackedCoversDrawable(
         if (b.isEmpty) return
         val w = b.width().toFloat()
         val h = b.height().toFloat()
-        val front = min(w, h) * FRONT_SIZE
-        val step = h * STEP
-        // draw back to front so the front cover ends up on top
-        for (i in LAYERS - 1 downTo 0) {
-            val size = front * (1f - SHRINK * i)
-            val left = b.left + (w - size) / 2f
-            val top = b.bottom - front - step * i
+        val outer = canvas.save()
+        canvas.clipRect(b)
+        if (single) {
+            layerBounds.set(b)
+            val d = layers[0] ?: placeholder
+            d.bounds = layerBounds
+            d.alpha = drawAlpha
+            d.draw(canvas)
+            canvas.restoreToCount(outer)
+            return
+        }
+        // draw the outermost first so the middle cover ends up on top
+        val order = (0 until used).sortedByDescending { abs(offsets[it]) }
+        for (i in order) {
+            val off = offsets[i]
+            val rank = abs(off)
+            val size = w * (if (offsets.size > 3) SIZES5 else SIZES3)[rank]
+            val cx = b.left + w / 2f + (if (off < 0) -1f else 1f) * w * (if (offsets.size > 3) DX5 else DX3)[rank]
+            val left = cx - size / 2f
+            val top = b.top + (h - size) / 2f
             rect.set(left, top, left + size, top + size)
             val radius = size * CORNER
 
@@ -113,14 +136,15 @@ class StackedCoversDrawable(
             d.bounds = layerBounds
             d.alpha = drawAlpha
             d.draw(canvas)
-            if (i > 0) {
-                shadePaint.alpha = (SHADE_PER_LAYER * i * drawAlpha / 255)
+            if (rank > 0) {
+                shadePaint.alpha = SHADE[rank] * drawAlpha / 255
                 canvas.drawRect(rect, shadePaint)
             }
             canvas.restoreToCount(save)
             edgePaint.alpha = drawAlpha
             canvas.drawRoundRect(rect, radius, radius, edgePaint)
         }
+        canvas.restoreToCount(outer)
     }
 
     override fun setAlpha(alpha: Int) {
@@ -138,12 +162,14 @@ class StackedCoversDrawable(
     override fun getOpacity(): Int = PixelFormat.TRANSLUCENT
 
     private companion object {
-        const val LAYERS = 3
-        const val FRONT_SIZE = 0.84f // front cover takes this much of the square
-        const val STEP = 0.075f // how far each back cover peeks out, relative to height
-        const val SHRINK = 0.09f // how much smaller each back cover is
-        const val CORNER = 0.06f
-        const val SHADE_PER_LAYER = 45
+        // indexed by distance from the middle (0, 1, 2)
+        // three covers get more room each than five
+        val SIZES3 = floatArrayOf(0.64f, 0.46f, 0f) // cover size relative to the width
+        val DX3 = floatArrayOf(0f, 0.36f, 0f) // how far from the center, relative to width
+        val SIZES5 = floatArrayOf(0.46f, 0.34f, 0.26f)
+        val DX5 = floatArrayOf(0f, 0.22f, 0.385f)
+        val SHADE = intArrayOf(0, 85, 140) // darkness of covers further away
+        const val CORNER = 0.07f
         const val COVER_SIZE_PX = 384
     }
 }

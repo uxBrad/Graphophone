@@ -335,6 +335,9 @@ abstract class BaseAdapter<T : Any>(
         }
     }
 
+    /** Grid cards only have a long-press menu; adapters can opt in to a visible kebab button. */
+    protected open val showMenuInGrid: Boolean get() = false
+
     override fun onBindViewHolder(
         holder: ViewHolder,
         position: Int
@@ -342,6 +345,9 @@ abstract class BaseAdapter<T : Any>(
         val item = list!!.second[position]
         if (layoutType == LayoutType.GRID || layoutType == LayoutType.COMPACT_GRID) {
             lockedInGridSize = true
+            // always set, holders are shared between adapters through the recycled view pool
+            holder.moreButton?.visibility =
+                if (hasMenu && showMenuInGrid) View.VISIBLE else View.GONE
             val newHeight = gridHeight!!
             if (holder.itemView.layoutParams.height != newHeight) {
                 holder.itemView.updateLayoutParams<ViewGroup.LayoutParams> {

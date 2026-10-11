@@ -42,6 +42,8 @@ data class CollectionData(
     val description: String,
     val albums: List<AlbumKey>,
     val createdAt: Long,
+    /** Absolute path of a picture the person chose as this collection's art, if any. */
+    val customCover: String? = null,
 ) {
     fun contains(key: AlbumKey) = albums.any { it.normalized == key.normalized }
 }

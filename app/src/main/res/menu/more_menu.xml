@@ -31,6 +31,14 @@
         android:title="@string/edit_collection"
         android:visible="false" />
     <item
+        android:id="@+id/set_collection_art"
+        android:title="@string/set_collection_art"
+        android:visible="false" />
+    <item
+        android:id="@+id/remove_collection_art"
+        android:title="@string/remove_collection_art"
+        android:visible="false" />
+    <item
         android:id="@+id/details"
         android:title="@string/details" />
     <item

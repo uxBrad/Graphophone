@@ -18,6 +18,9 @@
 package org.akanework.gramophone.ui.adapters
 
 import android.net.Uri
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import java.io.File
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.TooltipCompat
@@ -53,6 +56,8 @@ class CollectionAdapter(
         lateInit()
     }
 
+    override val showMenuInGrid: Boolean get() = true
+
     override fun virtualTitleOf(item: MusicCollection): String =
         context.getString(R.string.unknown_collection)
 
@@ -64,20 +69,33 @@ class CollectionAdapter(
         val item = list!!.second[position]
         holder.songCover.dispose()
         (holder.songCover.drawable as? StackedCoversDrawable)?.cancel()
+        val customCover = item.data.customCover?.let { File(it) }?.takeIf { it.exists() }
         holder.songCover.setImageDrawable(
-            StackedCoversDrawable(
-                context,
-                item.albums.map { it.cover },
-                R.drawable.ic_default_cover
-            )
+            if (customCover != null) {
+                StackedCoversDrawable(
+                    context, listOf(Uri.fromFile(customCover)), R.drawable.ic_default_cover,
+                    single = true
+                )
+            } else {
+                StackedCoversDrawable(
+                    context,
+                    item.albums.map { it.cover },
+                    R.drawable.ic_default_cover
+                )
+            }
         )
         holder.songCover.contentDescription = null // title is read out already
         // show the description under the name when there is one, album count otherwise
         val albumCount = context.resources.getQuantityString(
             R.plurals.albums, item.albums.size, item.albums.size
         )
-        holder.subTitle.text = item.description.ifBlank { albumCount }
-        holder.trackCount?.text = albumCount
+        if (holder.trackCount != null) {
+            // grid card has a separate third line for the count
+            holder.subTitle.text = item.description
+            holder.trackCount.text = albumCount
+        } else {
+            holder.subTitle.text = item.description.ifBlank { albumCount }
+        }
     }
 
     override fun onViewRecycled(holder: ViewHolder) {
@@ -95,7 +113,9 @@ class CollectionAdapter(
         popupMenu.inflate(R.menu.more_menu)
         popupMenu.menu.iterator().forEach {
             it.isVisible = it.itemId == R.id.play_next || it.itemId == R.id.add_to_queue
-                    || it.itemId == R.id.edit_collection || it.itemId == R.id.delete
+                    || it.itemId == R.id.rename || it.itemId == R.id.set_collection_art
+                    || it.itemId == R.id.delete
+                    || (it.itemId == R.id.remove_collection_art && item.data.customCover != null)
         }
         popupMenu.setOnMenuItemClickListener {
             when (it.itemId) {
@@ -105,7 +125,11 @@ class CollectionAdapter(
                 }
 
                 R.id.add_to_queue -> mainActivity.getPlayer()?.addMediaItems(item.songList)
-                R.id.edit_collection -> CollectionDialogs.showEditDialog(mainActivity, item.data)
+                R.id.rename -> CollectionDialogs.showEditDialog(mainActivity, item.data)
+                R.id.set_collection_art -> mainActivity.pickCollectionArt(item.id)
+                R.id.remove_collection_art -> mainActivity.lifecycleScope.launch {
+                    context.collectionsRepository.setCustomCover(item.id, null)
+                }
                 R.id.delete -> CollectionDialogs.confirmDelete(mainActivity, item.data)
                 else -> return@setOnMenuItemClickListener false
             }

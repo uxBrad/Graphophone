@@ -7,6 +7,14 @@
         android:title="@string/edit_collection"
         app:showAsAction="always" />
     <item
+        android:id="@+id/set_collection_art"
+        android:title="@string/set_collection_art"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/remove_collection_art"
+        android:title="@string/remove_collection_art"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/delete_collection"
         android:title="@string/delete_collection"
         app:showAsAction="never" />
