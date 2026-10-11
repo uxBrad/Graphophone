@@ -101,7 +101,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = appIdOverride ?: "org.akanework.gramophone"
+        applicationId = appIdOverride ?: "com.uxbrad.graphophone"
         minSdk = 23
         targetSdk = 37
         versionCode = 24
